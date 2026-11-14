@@ -792,7 +792,7 @@ function initMultiplayer(nickname) {
     return;
   }
 
-  socket = io('http://localhost:3000', {
+  socket = io('https://submission-fleet-thoroughly-rise.trycloudflare.com', {
     transports: ['websocket', 'polling']
   });
 
