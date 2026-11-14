@@ -1,0 +1,766 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  user-select: none;
+  background-color: #0b0f19;
+  font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+}
+
+canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Center Crosshair */
+#crosshair {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ch-dot {
+  width: 4px;
+  height: 4px;
+  background-color: #00ffcc;
+  border-radius: 50%;
+  box-shadow: 0 0 5px rgba(0, 255, 204, 0.9), 0 0 1px #000;
+}
+
+.ch-line {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.9);
+}
+
+.ch-top {
+  top: 2px;
+  left: 15px;
+  width: 2px;
+  height: 7px;
+}
+
+.ch-bottom {
+  bottom: 2px;
+  left: 15px;
+  width: 2px;
+  height: 7px;
+}
+
+.ch-left {
+  left: 2px;
+  top: 15px;
+  width: 7px;
+  height: 2px;
+}
+
+.ch-right {
+  right: 2px;
+  top: 15px;
+  width: 7px;
+  height: 2px;
+}
+
+/* Hitmarker (X-shaped diagonal ticks) */
+#hitmarker {
+  position: absolute;
+  inset: -6px;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.08s ease-out, transform 0.08s ease-out;
+}
+
+#hitmarker.active {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+.hm-line {
+  position: absolute;
+  background: #ffffff;
+  width: 7px;
+  height: 2px;
+  box-shadow: 0 0 4px #fff, 0 0 2px #000;
+}
+
+.hm-tl {
+  top: 6px;
+  left: 6px;
+  transform: rotate(45deg);
+}
+
+.hm-tr {
+  top: 6px;
+  right: 6px;
+  transform: rotate(-45deg);
+}
+
+.hm-bl {
+  bottom: 6px;
+  left: 6px;
+  transform: rotate(-45deg);
+}
+
+.hm-br {
+  bottom: 6px;
+  right: 6px;
+  transform: rotate(45deg);
+}
+
+#hitmarker.kill .hm-line {
+  background: #ef4444;
+  box-shadow: 0 0 6px #ef4444, 0 0 2px #000;
+}
+
+#hitmarker.headshot .hm-line {
+  background: #facc15;
+  box-shadow: 0 0 8px #facc15, 0 0 14px #ef4444;
+}
+
+/* Headshot Indicator */
+#headshot-banner {
+  position: fixed;
+  top: 57%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.6);
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #facc15;
+  text-shadow: 0 0 8px #ef4444, 0 0 18px #facc15, 0 2px 4px #000;
+  pointer-events: none;
+  z-index: 105;
+  opacity: 0;
+  transition: opacity 0.15s ease-out, transform 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  font-style: italic;
+}
+
+#headshot-banner.active {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.15);
+}
+
+/* --- Deadshot.io Style HUD Overlay --- */
+#hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 90;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.hud-box {
+  position: absolute;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(30, 41, 59, 0.75) 100%);
+  border: 1px solid rgba(0, 255, 204, 0.3);
+  backdrop-filter: blur(10px);
+  padding: 10px 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(0, 255, 204, 0.08);
+  transform: skewX(-8deg);
+  border-radius: 4px;
+}
+
+.hud-header {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.hud-num {
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.hud-max {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.hud-slash {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #64748b;
+  margin: 0 2px;
+}
+
+/* Bottom Left: Health & Player Tag */
+#hud-health {
+  bottom: 24px;
+  left: 24px;
+  min-width: 220px;
+  border-left: 5px solid #10b981;
+}
+
+.player-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #cbd5e1;
+  margin-bottom: 2px;
+}
+
+.player-tag-icon {
+  font-size: 0.8rem;
+}
+
+#hud-player-name {
+  color: #00ffcc;
+  text-shadow: 0 0 8px rgba(0, 255, 204, 0.5);
+}
+
+.health-plus {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #10b981;
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
+}
+
+#health-value {
+  color: #10b981;
+  text-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+}
+
+.health-track {
+  margin-top: 8px;
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.65);
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.health-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #059669, #10b981, #34d399);
+  box-shadow: 0 0 8px #10b981;
+  transition: width 0.25s ease-out;
+}
+
+/* Bottom Right: Ammo */
+#hud-ammo {
+  bottom: 24px;
+  right: 24px;
+  min-width: 170px;
+  text-align: right;
+  border-right: 5px solid #00e5ff;
+}
+
+.ammo-align {
+  justify-content: flex-end;
+}
+
+#ammo-current {
+  color: #00e5ff;
+  text-shadow: 0 0 12px rgba(0, 229, 255, 0.6);
+}
+
+.hud-badge {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #94a3b8;
+}
+
+.hud-badge.empty {
+  color: #ef4444;
+  animation: pulse-warn 0.8s infinite;
+}
+
+.hud-badge.reloading {
+  color: #f59e0b;
+  animation: pulse-warn 0.6s infinite;
+}
+
+@keyframes pulse-warn {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* Top Right: Kill Counter */
+#hud-kills {
+  top: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border-right: 5px solid #f59e0b;
+}
+
+.kills-icon {
+  font-size: 1.6rem;
+  filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.6));
+}
+
+.kills-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.hud-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #94a3b8;
+}
+
+#kills-value {
+  color: #f59e0b;
+  text-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+  font-size: 1.8rem;
+}
+
+/* --- Modern Deadshot.io Style Menu Overlay --- */
+#instructions {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(10, 16, 28, 0.72) 0%, rgba(4, 7, 14, 0.90) 100%);
+  backdrop-filter: blur(10px) saturate(160%);
+  z-index: 100;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  user-select: none;
+}
+
+#instructions.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.menu-modal {
+  width: 90%;
+  max-width: 520px;
+  background: linear-gradient(145deg, rgba(14, 21, 37, 0.88) 0%, rgba(20, 30, 52, 0.82) 100%);
+  border: 1.5px solid rgba(0, 255, 204, 0.35);
+  border-radius: 16px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.75), 0 0 35px rgba(0, 255, 204, 0.15), inset 0 0 20px rgba(0, 255, 204, 0.05);
+  backdrop-filter: blur(16px);
+  padding: 34px 32px;
+  text-align: center;
+  transform: skewX(-3deg);
+  animation: modal-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modal-enter {
+  0% { transform: skewX(-3deg) scale(0.92); opacity: 0; }
+  100% { transform: skewX(-3deg) scale(1); opacity: 1; }
+}
+
+/* Header & Title */
+.menu-header {
+  margin-bottom: 22px;
+}
+
+.tag-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  color: #00ffcc;
+  background: rgba(0, 255, 204, 0.12);
+  border: 1px solid rgba(0, 255, 204, 0.35);
+  border-radius: 9999px;
+  margin-bottom: 8px;
+  text-shadow: 0 0 6px rgba(0, 255, 204, 0.6);
+}
+
+.menu-title {
+  font-size: 2.7rem;
+  font-weight: 900;
+  letter-spacing: 4px;
+  line-height: 1;
+  color: #f8fafc;
+  margin: 4px 0;
+  font-style: italic;
+}
+
+.neon-accent {
+  color: #00ffcc;
+  text-shadow: 0 0 16px rgba(0, 255, 204, 0.8), 0 0 30px rgba(0, 255, 204, 0.4);
+}
+
+.menu-subtitle {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+/* Nickname Input */
+.nickname-section {
+  text-align: left;
+  margin-bottom: 18px;
+}
+
+.input-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #94a3b8;
+  margin-bottom: 6px;
+  padding-left: 4px;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 14px;
+  font-size: 1.1rem;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+#nickname-input {
+  width: 100%;
+  background: rgba(10, 16, 28, 0.85);
+  border: 1.5px solid rgba(0, 255, 204, 0.3);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  padding: 12px 14px 12px 42px;
+  outline: none;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  user-select: text;
+}
+
+#nickname-input::placeholder {
+  color: #64748b;
+  font-weight: 600;
+}
+
+#nickname-input:focus {
+  border-color: #00ffcc;
+  box-shadow: 0 0 16px rgba(0, 255, 204, 0.5), inset 0 0 8px rgba(0, 255, 204, 0.1);
+}
+
+/* Animated Glowing Play Button */
+.btn-play {
+  position: relative;
+  width: 100%;
+  background: linear-gradient(135deg, #00ffcc 0%, #00d2b4 50%, #059669 100%);
+  color: #041418;
+  border: none;
+  border-radius: 8px;
+  padding: 15px 24px;
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: 3px;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 22px;
+  box-shadow: 0 0 25px rgba(0, 255, 204, 0.55), 0 6px 20px rgba(0, 0, 0, 0.4);
+  animation: play-pulse 2s infinite ease-in-out;
+  transition: transform 0.15s ease, filter 0.15s ease;
+  overflow: hidden;
+}
+
+.btn-play:hover {
+  transform: scale(1.02);
+  filter: brightness(1.12);
+}
+
+.btn-play:active {
+  transform: scale(0.98);
+}
+
+.play-arrow {
+  font-size: 1.15rem;
+  transition: transform 0.2s ease;
+}
+
+.btn-play:hover .play-arrow {
+  transform: translateX(4px);
+}
+
+@keyframes play-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(0, 255, 204, 0.5), 0 0 35px rgba(0, 255, 204, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(0, 255, 204, 0.9), 0 0 55px rgba(0, 255, 204, 0.45);
+  }
+}
+
+/* Controls Guide Card */
+.controls-card {
+  background: rgba(10, 16, 28, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.controls-title {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #64748b;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.controls-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 14px;
+}
+
+.control-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  text-align: left;
+}
+
+.control-item span {
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+  color: #94a3b8;
+}
+
+kbd {
+  background: #1e293b;
+  color: #00ffcc;
+  padding: 3px 7px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-family: monospace;
+  border: 1px solid rgba(0, 255, 204, 0.3);
+  box-shadow: 0 2px 0 #0f172a;
+  white-space: nowrap;
+}
+
+/* Menu Footer */
+.menu-footer {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #facc15;
+  text-shadow: 0 0 6px rgba(250, 204, 21, 0.4);
+}
+
+/* --- Multiplayer Kill Feed, Elimination Banner & Death Overlay --- */
+#kill-feed {
+  position: fixed;
+  top: 75px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 95;
+  align-items: flex-end;
+}
+
+.kill-feed-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  padding: 6px 14px;
+  border-radius: 4px;
+  color: #fff;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 1px;
+  transform: skewX(-8deg);
+  animation: kfSlideIn 0.25s ease-out forwards;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.kill-feed-item.headshot {
+  border-color: rgba(250, 204, 21, 0.7);
+  box-shadow: 0 0 12px rgba(250, 204, 21, 0.35);
+}
+
+.kf-killer {
+  color: #00ffcc;
+  text-shadow: 0 0 6px rgba(0, 255, 204, 0.6);
+}
+
+.kf-icon {
+  font-size: 1.1rem;
+}
+
+.kf-victim {
+  color: #ef4444;
+  text-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+}
+
+.kf-headshot {
+  color: #facc15;
+  font-size: 0.8rem;
+  padding: 1px 4px;
+  background: rgba(250, 204, 21, 0.2);
+  border-radius: 3px;
+  margin-left: 4px;
+}
+
+@keyframes kfSlideIn {
+  from {
+    opacity: 0;
+    transform: skewX(-8deg) translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: skewX(-8deg) translateX(0);
+  }
+}
+
+/* Elimination Announcement Banner */
+#elim-banner {
+  position: fixed;
+  top: 64%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.7);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 105;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.88) 100%);
+  border: 1px solid #00ffcc;
+  padding: 10px 24px;
+  border-radius: 6px;
+  box-shadow: 0 0 25px rgba(0, 255, 204, 0.4), inset 0 0 10px rgba(0, 255, 204, 0.15);
+  font-family: 'Rajdhani', sans-serif;
+  transition: opacity 0.18s ease-out, transform 0.18s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+#elim-banner.active {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.elim-skull {
+  font-size: 1.8rem;
+}
+
+.elim-title {
+  font-size: 0.85rem;
+  letter-spacing: 3px;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.elim-name {
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #fff;
+  text-shadow: 0 0 10px #00ffcc;
+}
+
+.elim-pts {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #00ffcc;
+  letter-spacing: 1px;
+}
+
+/* Defeated Overlay */
+#death-overlay {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, rgba(15, 23, 42, 0.92) 100%);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease-out;
+  z-index: 110;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+#death-overlay.active {
+  opacity: 1;
+}
+
+.death-box {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 30px 50px;
+  border: 1px solid rgba(239, 68, 68, 0.6);
+  background: rgba(11, 15, 25, 0.85);
+  box-shadow: 0 0 40px rgba(239, 68, 68, 0.35);
+  border-radius: 8px;
+}
+
+.death-title {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #ef4444;
+  letter-spacing: 4px;
+  text-shadow: 0 0 16px rgba(239, 68, 68, 0.7);
+}
+
+.death-subtitle {
+  font-size: 1.1rem;
+  color: #cbd5e1;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.death-timer {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #00ffcc;
+  letter-spacing: 2px;
+  margin-top: 10px;
+}

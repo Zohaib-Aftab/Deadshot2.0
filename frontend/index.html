@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Deadshot Clone - 3D FPS Arena</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <!-- Center Screen Crosshair & Hitmarker -->
+    <div id="crosshair">
+      <div class="ch-dot"></div>
+      <div class="ch-line ch-top"></div>
+      <div class="ch-line ch-bottom"></div>
+      <div class="ch-line ch-left"></div>
+      <div class="ch-line ch-right"></div>
+      <!-- Hitmarker Indicator -->
+      <div id="hitmarker">
+        <div class="hm-line hm-tl"></div>
+        <div class="hm-line hm-tr"></div>
+        <div class="hm-line hm-bl"></div>
+        <div class="hm-line hm-br"></div>
+      </div>
+    </div>
+
+    <!-- Headshot Notification Popup -->
+    <div id="headshot-banner" class="headshot-popup">HEADSHOT!</div>
+
+    <!-- Live Multiplayer Kill Feed -->
+    <div id="kill-feed"></div>
+
+    <!-- Centered Elimination Announcement Banner -->
+    <div id="elim-banner">
+      <div class="elim-skull">💀</div>
+      <div class="elim-content">
+        <div class="elim-title">ELIMINATED</div>
+        <div id="elim-player-name" class="elim-name">ENEMY</div>
+      </div>
+      <div class="elim-pts">+100</div>
+    </div>
+
+    <!-- Defeated / Respawn Overlay for Local Player -->
+    <div id="death-overlay">
+      <div class="death-box">
+        <div class="death-title">YOU WERE ELIMINATED</div>
+        <div class="death-subtitle" id="death-killer-info">ELIMINATED BY ENEMY</div>
+        <div class="death-timer" id="death-countdown">RESPAWNING IN 2s...</div>
+      </div>
+    </div>
+
+    <!-- Deadshot.io Style HUD Overlay -->
+    <div id="hud">
+      <!-- Top Right: Kill Counter -->
+      <div id="hud-kills" class="hud-box">
+        <div class="kills-icon">💀</div>
+        <div class="kills-details">
+          <div class="hud-label">KILLS</div>
+          <div id="kills-value" class="hud-num">0</div>
+        </div>
+      </div>
+
+      <!-- Bottom Left: Player Tag & Health -->
+      <div id="hud-health" class="hud-box">
+        <div class="player-tag">
+          <span class="player-tag-icon">👤</span>
+          <span id="hud-player-name">Player_1</span>
+        </div>
+        <div class="hud-header">
+          <span class="health-plus">+</span>
+          <span id="health-value" class="hud-num">100</span>
+          <span class="hud-slash">/</span>
+          <span class="hud-max">100</span>
+        </div>
+        <div class="health-track">
+          <div id="health-bar-fill" class="health-fill" style="width: 100%;"></div>
+        </div>
+      </div>
+
+      <!-- Bottom Right: Ammo -->
+      <div id="hud-ammo" class="hud-box">
+        <div class="hud-header ammo-align">
+          <span id="ammo-current" class="hud-num">30</span>
+          <span class="hud-slash">/</span>
+          <span id="ammo-max" class="hud-max">30</span>
+        </div>
+        <div id="reload-badge" class="hud-badge"><kbd>R</kbd> RELOAD</div>
+      </div>
+    </div>
+
+    <!-- Modern Deadshot.io Style Menu Overlay -->
+    <div id="instructions">
+      <div class="menu-modal">
+        <!-- Header / Logo -->
+        <div class="menu-header">
+          <div class="tag-badge">TACTICAL 3D FPS</div>
+          <h1 class="menu-title">DEADSHOT<span class="neon-accent">.IO</span></h1>
+          <p class="menu-subtitle">BROWSER COMBAT ARENA</p>
+        </div>
+
+        <!-- Nickname Input Section -->
+        <div class="nickname-section">
+          <label for="nickname-input" class="input-label">OPERATIVE CODENAME</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🎯</span>
+            <input
+              type="text"
+              id="nickname-input"
+              maxlength="15"
+              placeholder="ENTER NICKNAME"
+              spellcheck="false"
+              autocomplete="off"
+              value="Player_1"
+            />
+          </div>
+        </div>
+
+        <!-- Animated Glowing PLAY Button -->
+        <button id="play-button" class="btn-play">
+          <span class="btn-text" id="play-btn-text">PLAY NOW</span>
+          <span class="play-arrow">▶</span>
+        </button>
+
+        <!-- Controls Guide Card -->
+        <div class="controls-card">
+          <div class="controls-title">CONTROLS GUIDE</div>
+          <div class="controls-grid">
+            <div class="control-item"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> <span>MOVE</span></div>
+            <div class="control-item"><kbd>SPACE</kbd> <span>JUMP</span></div>
+            <div class="control-item"><kbd>LEFT CLICK</kbd> <span>SHOOT</span></div>
+            <div class="control-item"><kbd>R</kbd> <span>RELOAD</span></div>
+            <div class="control-item"><kbd>MOUSE</kbd> <span>LOOK / AIM</span></div>
+            <div class="control-item"><kbd>ESC</kbd> <span>MENU / PAUSE</span></div>
+          </div>
+        </div>
+
+        <div class="menu-footer">
+          <span>TIP: HEADSHOTS DEAL 100 DAMAGE FOR AN INSTANT ELIMINATION</span>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
