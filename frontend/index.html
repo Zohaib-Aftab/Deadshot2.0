@@ -54,16 +54,13 @@
 
     <!-- Deadshot.io Style HUD Overlay -->
     <div id="hud">
-      <!-- Top Right: Kill Counter -->
-      <div id="hud-kills" class="hud-box">
-        <div class="kills-icon">💀</div>
-        <div class="kills-details">
-          <div class="hud-label">KILLS</div>
-          <div id="kills-value" class="hud-num">0</div>
-        </div>
-      </div>
+      <!-- 1. Mobile Menu Pause Button (Far Left in Mobile Top Bar) -->
+      <button id="btn-mobile-menu" class="mobile-menu-btn" aria-label="Menu">
+        <span class="menu-icon">⚙</span>
+        <span class="menu-text">MENU</span>
+      </button>
 
-      <!-- Bottom Left: Player Tag & Health -->
+      <!-- 2. Player Tag & Health (Player Name & 100/100) -->
       <div id="hud-health" class="hud-box">
         <div class="player-tag">
           <span class="player-tag-icon">👤</span>
@@ -80,7 +77,7 @@
         </div>
       </div>
 
-      <!-- Bottom Right: Ammo -->
+      <!-- 3. Ammo (30/30 [R]) -->
       <div id="hud-ammo" class="hud-box">
         <div class="hud-header ammo-align">
           <span id="ammo-current" class="hud-num">30</span>
@@ -88,6 +85,15 @@
           <span id="ammo-max" class="hud-max">30</span>
         </div>
         <div id="reload-badge" class="hud-badge"><kbd>R</kbd> RELOAD</div>
+      </div>
+
+      <!-- 4. Kill Counter (Kills 0 - Far Right) -->
+      <div id="hud-kills" class="hud-box">
+        <div class="kills-icon">💀</div>
+        <div class="kills-details">
+          <div class="hud-label">KILLS</div>
+          <div id="kills-value" class="hud-num">0</div>
+        </div>
       </div>
     </div>
 
@@ -137,11 +143,6 @@
           <span class="fire-sub-label">HOLD AUTO</span>
         </button>
       </div>
-
-      <!-- Mobile Menu Pause Button (Top Left) -->
-      <button id="btn-mobile-menu" class="mobile-menu-btn" aria-label="Menu">
-        <span>⚙ MENU</span>
-      </button>
     </div>
 
     <!-- Modern Deadshot.io Style Menu Overlay -->

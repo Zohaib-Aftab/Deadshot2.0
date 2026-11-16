@@ -2093,7 +2093,7 @@ if (btnMobileReload) {
 
 const btnMobileMenu = document.getElementById('btn-mobile-menu');
 if (btnMobileMenu) {
-  btnMobileMenu.addEventListener('touchstart', (e) => {
+  const triggerMenu = (e) => {
     e.preventDefault();
     e.stopPropagation();
     isMobileGameActive = false;
@@ -2105,7 +2105,9 @@ if (btnMobileMenu) {
     moveState.left = false;
     moveState.right = false;
     resetJoystick();
-  }, { passive: false });
+  };
+  btnMobileMenu.addEventListener('touchstart', triggerMenu, { passive: false });
+  btnMobileMenu.addEventListener('click', triggerMenu);
 }
 
 // Physics & Movement Variables
